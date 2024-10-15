@@ -1,0 +1,470 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500&amp;display=swap');
+
+::-webkit-scrollbar {
+  height: 5px;
+  width: 5px;
+}
+::-webkit-scrollbar-button {
+  background: #ccc
+}
+::-webkit-scrollbar-track-piece {
+  background: #888
+}
+::-webkit-scrollbar-thumb {
+  background: #eee
+}
+body{
+  font-family: 'Poppins', sans-serif!important;
+}
+.category-container {
+  display: flex; 
+  align-items: center;
+  justify-content: space-between;
+  width: 100%; 
+  padding: 5px;
+  box-sizing: border-box;
+}
+
+.list-item {
+  flex-grow: 1;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  max-width: 140px; 
+  margin-right: 10px;
+  font-size:16px;
+}
+
+.amount-nav {
+  font-weight: bold;
+  font-size: 16px;
+}
+
+
+.category-container {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.amount-nav {
+  padding-right: 4px;
+}
+
+.custom-select-size {
+  width: 150px; 
+  font-size: 0.875rem; 
+  padding: 0.375rem 0.75rem; 
+}
+
+.input-group {
+  position: relative;
+  width: 400px;
+  min-width: 369px;
+  height: 40px;
+  transition: background-color 0.5s ease; 
+}
+
+.input-group:hover {
+  background-color: #79cb7b;
+  box-shadow: 0 0 10px rgba(39, 45, 48, 0.2); 
+  cursor: pointer; 
+}
+
+.mb-0 {
+  margin-bottom: 0;
+}
+
+.overflow-new {
+  display: inline;
+  height: calc(100vh - 150px);
+  overflow: auto;
+  width: 100%;
+}
+
+.overflow-new::-webkit-scrollbar {
+  width: 2px; /* Width of the scrollbar */
+}
+
+.overflow-new::-webkit-scrollbar-thumb {
+  background-color: rgba(93, 92, 92, 0.1); /* Color of the scrollbar thumb */
+  border-radius: 10px; /* Roundness of the scrollbar thumb */
+  width: 2px;
+}
+
+.overflow-new::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0, 0, 0, 0.2); /* Color of the scrollbar thumb on hover */
+}
+
+.overflow-scroll {
+  overflow-x: auto;
+  white-space: nowrap;
+  flex-grow: 1;
+  overflow-y: hidden; /* Hide overflow */
+  padding-bottom: 10px;
+  height: calc(100vh - 200px);
+}
+
+.card-subtitle {
+  word-wrap: break-word;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.col-md-6.col-lg-3.mb-4 {
+  display: inline-block;
+  vertical-align: top;
+  width: 28%; /* Adjust the width to fit your needs */
+}
+
+
+.centered-box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  background-color: #f2f2f2;
+}
+
+.text-muted-data-date {
+  color: #999;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.custom-card {
+  min-width: 600px; 
+  max-width: 100px; 
+  width: 100%;
+  background-color: #497282;
+}
+
+.custom-card-content {
+  padding: 16px;
+}
+
+.custom-typography {
+  margin-bottom: 16px;
+}
+
+.sticky-header {
+  position: sticky;
+  top: 0;
+  background-color: #dbd3d3;
+  z-index: 1;
+  transition: background-color 0.3s, box-shadow 0.3s;
+}
+
+.sticky-header:hover {
+  background-color: #e2e6ea; 
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+}
+
+.container {
+  /* padding-top: 20px; */
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.row {
+  width: 100%; 
+}
+
+.col-md-3,
+.col-lg-3 {
+  flex: 1 1 0%; 
+}
+
+.card {
+  width: 100%; 
+}
+
+.card-st-1 {
+  margin: 5px auto;
+  width: 100%;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.card-header {
+  padding: 0.5rem 1.25rem; 
+  border-bottom: 1px solid #dee2e6; 
+  background-color: #f8f9fa;
+  border: 1px solid #ddd;
+}
+
+.italic-smaller {
+  font-style: italic;
+  font-size: smaller;
+}
+
+.card-title {
+  background-color: #2296ef;
+  height: 3rem; 
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  padding: 0.75rem; 
+  margin-bottom: 0.5rem;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.italic-smaller-count {
+  font-style: normal;
+  font-size: 14px;
+  background: #f4f2f5;
+  border-radius: 30px;
+  padding: 12px 3px 0; 
+  display: inline-block; 
+  color: #2296ef;
+  width: 40px;
+  height: 40px;
+  text-overflow: ellipsis;
+  overflow: auto;
+}
+
+.category {
+  flex: 1;
+  text-align: left;
+  padding-left: 5px; 
+}
+
+.d-flex {
+  display: flex;
+}
+
+.justify-content-between {
+  justify-content: space-between;
+}
+
+.align-items-center {
+  align-items: center;
+}
+
+.mx-auto {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+
+.card-body {
+  padding: 0.5rem 0.5rem; 
+  /* overflow-y: auto; */
+  margin-right: 1px;
+  transition: background-color 0.3s ease; 
+  /* border: 1px solid #ddd; */
+}
+
+.card-body:hover {
+  background-color: #f7f7f7; 
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); 
+  cursor: pointer;
+}
+
+.card-body-data {
+  padding: 0.5rem 0.5rem;
+  transition: background-color 0.3s ease; 
+}
+
+.card-body-data:hover {
+  background-color: #f7f7f7; 
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  cursor: pointer; 
+}
+
+.view-h {
+  height: calc(100vh - 200px); 
+  overflow-y: auto;
+  padding: 5px; 
+  overflow-x: hidden;
+}
+
+.view-h::-webkit-scrollbar {
+  height: 5px; 
+  width: 5px;
+}
+
+.view-h::-webkit-scrollbar-track {
+  background: #f1f1f1; 
+}
+
+.view-h::-webkit-scrollbar-thumb {
+  background: #fdfdfd; 
+}
+
+.text-muted-data {
+  color: #000000;
+}
+
+.overflow-scroll {
+  flex-grow: 1;
+  overflow-y: hidden;
+  padding-bottom: 10px;
+}
+
+.name {
+  font-size: 13px;
+  flex: 1;
+  min-width: 120px; 
+  padding-top: 5px; 
+  padding-left: 5px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  max-width: 150px; 
+  margin-right: 10px;
+}
+
+.value {
+  font-size: 12px;
+  padding-right: 10px;
+  min-width: 50px; 
+  padding-top: 7px; 
+  flex: 1;
+  min-width: 100px; 
+  /* padding-right: 50px; */
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  max-width: 150px; 
+  /* margin-right: 10px; */
+  text-align:right
+}
+
+/* Make the list items flex items that wrap to the next line */
+.row.flex-nowrap {
+  flex-wrap: wrap;
+  /* overflow-x: auto; */
+  /* padding-bottom: 20px;  */
+}
+/* .overflow-newsss {
+  overflow-x: hidden; 
+  white-space: nowrap; 
+} */
+
+/* On hover, show the scrollbar */
+/* .overflow-newsss:hover {
+  overflow-x: scroll; 
+} */
+
+/* Make each list item a card that takes up a quarter of the screen width */
+.list-unstyled-item {
+    /* flex: 0 0 16%; 
+    max-width: 25.3%;  */
+    display: inline-block;
+    width: 100% !important;
+    margin-bottom: 20px;
+  }
+  .li.col.mb
+/* Make the card header sticky */
+.sticky-header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background-color: #fff; /* Set a background color to cover the previous card */
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+/* Style the card body */
+.card-body.view-h {
+  padding: 20px;
+  overflow-y: auto; 
+  transition: background-color 0.3s ease; 
+}
+
+.card-body.view-h:hover {
+  background-color: #f2f2f2; 
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); 
+  cursor: pointer; /* Change cursor to pointer on hover */
+}
+
+/* Style the deal cards */
+.deal.card {
+  flex: 0 0 25%; 
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+
+  transition: box-shadow 0.3s ease, transform 0.3s ease; /* Add transition effect */
+}
+
+.deal.card:hover {
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3); /* Increase box shadow on hover */
+  transform: translateY(-5px); /* Add a slight lift on hover */
+  cursor: pointer !important; /* Change cursor to pointer on hover */
+}
+
+/* Make the "Show more" link blue and small */
+.deal.card span:first-child {
+  color: #ff7271;
+  font-size: small;
+  padding-left: 5px;
+  cursor: pointer;
+}
+
+/* Make the date text small and muted */
+.deal.card span:last-child {
+  font-size: 12px;
+  color: #999;
+  padding-right: 10px;
+}
+
+ul.row.flex-nowrap.list-unstyled {
+  display: flex;
+  flex-wrap: wrap;
+  padding-left: 0;
+  list-style: none;
+  width: 100%;
+  max-width: 25%;
+}
+
+.height-fixed-top {
+  height: 100%;
+}
+
+.mt-4-top {
+  padding-top: 0rem;
+}
+
+@media (max-width: 576px) {
+  ul.row.flex-nowrap.list-unstyled {
+    overflow: auto;
+  }
+
+  .list-unstyled li {
+    width: 100%;
+    max-width: 100%;
+  }
+}
+
+button.left_btn{
+    position: absolute;
+    top: 50%;
+    z-index: 9;
+    border: 1px solid #ddd;
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    float: left;
+    left: 0;
+}
+button.right_btn {
+    position: absolute;
+    top: 50%;
+    z-index: 9;
+    border: 1px solid #ddd;
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    float: right;
+    right: 0;
+}
