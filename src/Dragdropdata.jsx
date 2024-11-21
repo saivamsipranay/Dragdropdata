@@ -1,6 +1,6 @@
-import React, { useState,useLayoutEffect, useEffect,useRef } from "react";
 import axios from "axios";
-import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
 // import Box from '@mui/material/Box';
 // import Drawer from '@mui/material/Drawer';
 // import Button from '@mui/material/Button';
@@ -10,13 +10,12 @@ import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 // import CardActions from '@mui/material/CardActions';
 // import "./App.css"; 
 // import { colors } from "@mui/material";
-import "./Dragdropdata.css";
-import { useParams } from 'react-router-dom';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faArrowRight } from '@fortawesome/free-solid-svg-icons';
-import { toast, ToastContainer } from 'react-toastify';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { useParams } from 'react-router-dom';
+import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { size } from "lodash";
+import "./Dragdropdata.css";
 
 
 const Dragdropdata = () => {
@@ -56,11 +55,11 @@ const Dragdropdata = () => {
       updateScrollButtons();
     };
   
-    // Add event listeners
+   
     window.addEventListener('beforeunload', saveScrollPosition);
     window.addEventListener('resize', updateOnResize);
   
-    // Cleanup event listeners on unmount
+  
     return () => {
       window.removeEventListener('beforeunload', saveScrollPosition);
       window.removeEventListener('resize', updateOnResize);
@@ -88,28 +87,15 @@ const Dragdropdata = () => {
       setTimeout(updateScrollButtons, 500);
     }
   };
-// const fetchData =async()=>{
-//   try {
-//     const url ="http://20.219.207.157:8008/viewCustomEntityKanban";
-//     const data =await fetch(url);
-//     const res = await JSON.stringify(data);
-// alert(res);   
-//   } catch (error) {
-//     console.error('Error fetching data:', error);
-//   }
-// }
- 
-
 
   const fetchData = async () => {
     try {
-      // Determine the URL based on the filter
-      const url = filter === 'employees'
-        // ? `https://testdev.spoors.dev/entity-api/extraService/custom/entity/employee/mapping/api/?customEntitySpecId=${customEntitySpecId}`
-        // : `https://testdev.spoors.dev/entity-api/extraService/custom/entity/list/api/?customEntitySpecId=${customEntitySpecId}`;
-        ? `http://20.219.207.157:8008/viewCustomEntityKanban`
-      : `http://20.219.207.157:8008/viewCustomEntityKanban`;
 
+      const url = filter === 'employees'
+        // ? `https://staging.spoors.in/entity-api/extraService/custom/entity/employee/mapping/api/?customEntitySpecId=${customEntitySpecId}`
+        // : `https://staging.spoors.in/entity-api/extraService/custom/entity/list/api/?customEntitySpecId=${customEntitySpecId}`;
+        ? `https://staging.spoors.in/effortx/extraService/custom/entity/employee/mapping/api/?customEntitySpecId=${customEntitySpecId}`
+        : `https://staging.spoors.in/effortx/extraService/custom/entity/list/api/?customEntitySpecId=${customEntitySpecId}`;
       const response = await axios.get(url);
       const data = response.data;
       if (data.summary) {
@@ -306,7 +292,7 @@ const Dragdropdata = () => {
     console.log("Sending data:", JSON.stringify(requestBody));
 
     try {
-      const response = await fetchWithTimeout(`https://testdev.spoors.dev/entity-api/extraService/get/custom/entity/list/mapping?customEntitySpecId=${customEntitySpecId}`, {
+      const response = await fetchWithTimeout(`https://staging.spoors.in/effortx/extraService/get/custom/entity/list/mapping?customEntitySpecId=${customEntitySpecId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -359,7 +345,7 @@ const Dragdropdata = () => {
     }
 
 
-    const baseUrl = `https://testdev.spoors.dev/entity-api/web/form/data/view/`;
+    const baseUrl = `https://staging.spoors.in/effortx/web/form/data/view/`;
     const dynamicUrl = `${baseUrl}${formId}?customEntitySpecId=${customEntitySpecId}`;
 
     console.log("dynamicUrl:", dynamicUrl);
