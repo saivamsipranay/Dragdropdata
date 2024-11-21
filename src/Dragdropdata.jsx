@@ -55,11 +55,11 @@ const Dragdropdata = () => {
       updateScrollButtons();
     };
   
-   
+    // Add event listeners
     window.addEventListener('beforeunload', saveScrollPosition);
     window.addEventListener('resize', updateOnResize);
   
-  
+    // Cleanup event listeners on unmount
     return () => {
       window.removeEventListener('beforeunload', saveScrollPosition);
       window.removeEventListener('resize', updateOnResize);
@@ -88,16 +88,18 @@ const Dragdropdata = () => {
     }
   };
 
+
   const fetchData = async () => {
     try {
-
+      // Determine the URL based on the filter
       const url = filter === 'employees'
-        // ? `https://staging.spoors.in/entity-api/extraService/custom/entity/employee/mapping/api/?customEntitySpecId=${customEntitySpecId}`
-        // : `https://staging.spoors.in/entity-api/extraService/custom/entity/list/api/?customEntitySpecId=${customEntitySpecId}`;
-        ? `https://staging.spoors.in/effortx/extraService/custom/entity/employee/mapping/api/?customEntitySpecId=${customEntitySpecId}`
-        : `https://staging.spoors.in/effortx/extraService/custom/entity/list/api/?customEntitySpecId=${customEntitySpecId}`;
+        // ? `https://react.spoors.dev/entity-api/extraService/custom/entity/employee/mapping/api/?customEntitySpecId=${customEntitySpecId}`
+        // : `https://react.spoors.dev/entity-api/extraService/custom/entity/list/api/?customEntitySpecId=${customEntitySpecId}`;
+          ? `https://staging.spoors.in/effortx/extraService/custom/entity/employee/mapping/api/?customEntitySpecId=${customEntitySpecId}`
+          : `https://staging.spoors.in/effortx/extraService/custom/entity/list/api/?customEntitySpecId=${customEntitySpecId}`;
       const response = await axios.get(url);
       const data = response.data;
+      // Extract summary data
       if (data.summary) {
         setSummary(data.summary);
       }
@@ -111,7 +113,7 @@ const Dragdropdata = () => {
             const key = Object.keys(deal)[0];
             const customEntityItems = deal[key]?.custom_entity_items.map((item) => ({
               ...item,
-              formId: item.formId, 
+              formId: item.formId, // Preserve the original formId value
             })) || [];
             return {
               [key]: {
@@ -129,7 +131,7 @@ const Dragdropdata = () => {
             const key = Object.keys(deal)[0];
             const customEntityItems = deal[key]?.custom_entity_items.map((item) => ({
               ...item,
-              formId: item.formId, 
+              formId: item.formId, // Preserve the original formId value
             })) || [];
             return {
               [key]: {
@@ -345,7 +347,7 @@ const Dragdropdata = () => {
     }
 
 
-    const baseUrl = `https://staging.spoors.in/effortx/web/form/data/view/`;
+    const baseUrl = `https://secure.spoors.in/effortx/web/form/data/view/`;
     const dynamicUrl = `${baseUrl}${formId}?customEntitySpecId=${customEntitySpecId}`;
 
     console.log("dynamicUrl:", dynamicUrl);
@@ -476,12 +478,14 @@ const Dragdropdata = () => {
                                       >
                                         <div className="d-flex justify-content-between align-items-center">
                                           <p className="card-subtitle mb-3 text-muted-data name" title={deal["Client"] || "No Client"}>
-                                            {deal["Client"] || "No Client"}
+                                            {deal["Client"] ||deal["Company Name"]||deal["No LEAD DATA"]||deal["Profession"]}
+                                        
                                           </p>
                                     
                                         <p className="card-subtitle mb-3 text-muted-data value" title={deal["Contact Name"] || "No DATA"}>
-                                            {deal["Contact Name"] || "No DATA"}
+                                            {deal["Contact Name"] ||deal["Lead Name"] ||deal["Course Interested In"]||"No DATA"}
                                           </p>
+                                          
                                         </div>
                                         <div className="d-flex justify-content-between">
                                           <span
@@ -513,7 +517,7 @@ const Dragdropdata = () => {
                           </li>
                         )}
                       </Droppable>
-                    );
+                    );//testing
                   })}
                   {provided.placeholder}
                 </ul>
