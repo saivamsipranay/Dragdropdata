@@ -55,11 +55,11 @@ const Dragdropdata = () => {
       updateScrollButtons();
     };
   
-    // Add event listeners
+   
     window.addEventListener('beforeunload', saveScrollPosition);
     window.addEventListener('resize', updateOnResize);
   
-    // Cleanup event listeners on unmount
+   
     return () => {
       window.removeEventListener('beforeunload', saveScrollPosition);
       window.removeEventListener('resize', updateOnResize);
@@ -427,7 +427,7 @@ const Dragdropdata = () => {
         </div>
 
        <div>
-        <div className="overflow-newsss" ref={scrollContainerRef} style={{ display: 'flex', overflowX: 'auto', whiteSpace: 'nowrap', padding: '10px' }}>
+        <div className="overflow-new" ref={scrollContainerRef} style={{ display: 'flex', overflowX: 'auto', whiteSpace: 'nowrap', padding: '10px' }}>
           <DragDropContext onDragEnd={onDragEnd}>
             <Droppable droppableId="deals" direction="horizontal">
               {(provided) => (
@@ -465,7 +465,7 @@ const Dragdropdata = () => {
                                 </h5>
                               </div>
 
-                              <ul className="card-body view-h list-unstyled">
+                              <ul className="card-body view-c list-unstyled" >
                                 {dealCategory.custom_entity_items && dealCategory.custom_entity_items.map((deal, index) => (
                                   <Draggable key={deal.custom_entity_id} draggableId={deal.custom_entity_id.toString()} index={index}>
                                     {(provided) => (

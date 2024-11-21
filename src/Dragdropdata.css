@@ -2,16 +2,18 @@
 
 ::-webkit-scrollbar {
   height: 5px;
-  width: 5px;
+  width: 2px;
+  border-radius: 5px;
 }
 ::-webkit-scrollbar-button {
-  background: #ccc
+  background: #ccc;
+  display: none;
 }
 ::-webkit-scrollbar-track-piece {
-  background: #888
+  background: #eee
 }
 ::-webkit-scrollbar-thumb {
-  background: #eee
+  background: #888;
 }
 body{
   font-family: 'Poppins', sans-serif!important;
@@ -80,16 +82,21 @@ body{
   height: calc(100vh - 150px);
   overflow: auto;
   width: 100%;
+  
 }
 
 .overflow-new::-webkit-scrollbar {
   width: 2px; /* Width of the scrollbar */
+  height: 5px;
+ 
+  border-radius: 5px;
 }
 
 .overflow-new::-webkit-scrollbar-thumb {
   background-color: rgba(93, 92, 92, 0.1); /* Color of the scrollbar thumb */
   border-radius: 10px; /* Roundness of the scrollbar thumb */
   width: 2px;
+  background: #888;
 }
 
 .overflow-new::-webkit-scrollbar-thumb:hover {
