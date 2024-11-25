@@ -1,9 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500&amp;display=swap');
 
 ::-webkit-scrollbar {
-  height: 5px;
+  height: 10px;
   width: 2px;
-  border-radius: 5px;
+  border-radius: 10px;
 }
 ::-webkit-scrollbar-button {
   background: #ccc;
@@ -23,8 +23,8 @@ body{
   align-items: center;
   justify-content: space-between;
   width: 100%; 
-  padding: 5px;
-  box-sizing: border-box;
+padding: 5px;
+ 
 }
 
 .list-item {
@@ -35,11 +35,13 @@ body{
   max-width: 140px; 
   margin-right: 10px;
   font-size:16px;
+  color:#1061cd;
 }
 
 .amount-nav {
   font-weight: bold;
-  font-size: 16px;
+  font-size: 11px;
+  color: #000000;
 }
 
 
@@ -49,9 +51,8 @@ body{
   width: 100%;
 }
 
-.amount-nav {
-  padding-right: 4px;
-}
+
+
 
 .custom-select-size {
   width: 150px; 
@@ -82,32 +83,33 @@ body{
   height: calc(100vh - 150px);
   overflow: auto;
   width: 100%;
-  
+ 
 }
 
-.overflow-new::-webkit-scrollbar {
-  width: 2px; /* Width of the scrollbar */
-  height: 5px;
- 
+/* .overflow-new::-webkit-scrollbar {
+  width: 2px; 
+  height: 15px;
+  width: 20px;
   border-radius: 5px;
-}
+} */
 
 .overflow-new::-webkit-scrollbar-thumb {
-  background-color: rgba(93, 92, 92, 0.1); /* Color of the scrollbar thumb */
-  border-radius: 10px; /* Roundness of the scrollbar thumb */
+  /* background-color: rgba(93, 92, 92, 0.1); /* Color of the scrollbar thumb */
+  border-radius: 10px; 
   width: 2px;
-  background: #888;
-}
+  height: 15px;
+  background: #888;}
+ 
 
 .overflow-new::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(0, 0, 0, 0.2); /* Color of the scrollbar thumb on hover */
-}
+  background-color: rgba(0, 0, 0, 0.2); 
+  width: 20px;height: 15px;}
 
 .overflow-scroll {
   overflow-x: auto;
   white-space: nowrap;
   flex-grow: 1;
-  overflow-y: hidden; /* Hide overflow */
+  overflow-y: hidden;
   padding-bottom: 10px;
   height: calc(100vh - 200px);
 }
@@ -123,7 +125,7 @@ body{
 .col-md-6.col-lg-3.mb-4 {
   display: inline-block;
   vertical-align: top;
-  width: 28%; /* Adjust the width to fit your needs */
+  width: 28%; 
 }
 
 
@@ -170,7 +172,6 @@ body{
 }
 
 .container {
-  /* padding-top: 20px; */
   height: 100vh;
   display: flex;
   flex-direction: column;
@@ -210,12 +211,10 @@ body{
 }
 
 .card-title {
-  background-color: #2296ef;
   height: 3rem; 
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
-  padding: 0.75rem; 
   margin-bottom: 0.5rem;
   border-radius: 8px;
   display: flex;
@@ -226,15 +225,15 @@ body{
 .italic-smaller-count {
   font-style: normal;
   font-size: 14px;
-  background: #f4f2f5;
-  border-radius: 30px;
-  padding: 12px 3px 0; 
-  display: inline-block; 
-  color: #2296ef;
-  width: 40px;
-  height: 40px;
+  background: #1061cd;
+  border-radius: 10px;
+ display: flex;
+ align-items: center;justify-content: center;
+  width: 35px;
+  height: 35px;
   text-overflow: ellipsis;
   overflow: auto;
+  color: #fff;
 }
 
 .category {
@@ -263,11 +262,25 @@ body{
 
 .card-body {
   padding: 0.5rem 0.5rem; 
-  /* overflow-y: auto; */
   margin-right: 1px;
   transition: background-color 0.3s ease; 
-  /* border: 1px solid #ddd; */
+ 
 }
+.view-h::-webkit-scrollbar {
+  width: 5px; 
+  height: 15px;
+  border-radius: 15px;
+}
+
+
+.view-h::-webkit-scrollbar-thumb {
+  background-color: rgba(93, 92, 92, 0.1);  
+  background: #888;
+  
+}
+
+.view-h::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0, 0, 0, 0.2); }
 
 .card-body:hover {
   background-color: #f7f7f7; 
@@ -293,18 +306,18 @@ body{
   overflow-x: hidden;
 }
 
-.view-h::-webkit-scrollbar {
+/* .view-h::-webkit-scrollbar {
   height: 5px; 
   width: 5px;
-}
+} */
 
-.view-h::-webkit-scrollbar-track {
+/* .view-h::-webkit-scrollbar-track {
   background: #f1f1f1; 
-}
+} */
 
-.view-h::-webkit-scrollbar-thumb {
-  background: #fdfdfd; 
-}
+/* .view-h::-webkit-scrollbar-thumb {
+  background: #a11414; 
+} */
 
 .text-muted-data {
   color: #000000;

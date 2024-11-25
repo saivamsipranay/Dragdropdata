@@ -427,7 +427,7 @@ const Dragdropdata = () => {
         </div>
 
        <div>
-        <div className="overflow-new" ref={scrollContainerRef} style={{ display: 'flex', overflowX: 'auto', whiteSpace: 'nowrap', padding: '10px' }}>
+        <div className="overflow-newsss" ref={scrollContainerRef} style={{ display: 'flex', overflowX: 'auto', whiteSpace: 'nowrap', padding: '10px' }}>
           <DragDropContext onDragEnd={onDragEnd}>
             <Droppable droppableId="deals" direction="horizontal">
               {(provided) => (
@@ -451,12 +451,12 @@ const Dragdropdata = () => {
                           >
                             
                             <div className="card h-100">
-                              <div className="card-header bg-light text-center sticky-header">
-                                <h5 className="card-title p-3 mb-1 text-white d-flex justify-content-between align-items-center" style={{background:'#1061cd'}}>
-                                  <span className="italic-smaller-count" style={{color:'#1061cd'}} title={dealCategory.custom_entity_items ? dealCategory.custom_entity_items.length : 0}>
+                              <div className="card-header bg-light text-center sticky-header" style={{ }}>
+                                <h5 className="card-title text-white d-flex justify-content-between align-items-center" style={{}}>
+                                  <span className="italic-smaller-count" style={{ width:"13%"}} title={dealCategory.custom_entity_items ? dealCategory.custom_entity_items.length : 0}>
                                     {dealCategory.custom_entity_items ? dealCategory.custom_entity_items.length : 0}
                                   </span>
-                                  <span className="category mx-auto">
+                                  <span className="category mx-auto" style={{width:'80%'}}>
                                     <div className="category-container">
                                       <span className="list-item" title={listItemKey}>{listItemKey}</span>
                                       <span className="amount-nav" title={totalAmount}>₹ {totalAmount}</span>
@@ -465,7 +465,7 @@ const Dragdropdata = () => {
                                 </h5>
                               </div>
 
-                              <ul className="card-body view-c list-unstyled" >
+                              <ul className="card-body view-h list-unstyled" >
                                 {dealCategory.custom_entity_items && dealCategory.custom_entity_items.map((deal, index) => (
                                   <Draggable key={deal.custom_entity_id} draggableId={deal.custom_entity_id.toString()} index={index}>
                                     {(provided) => (
