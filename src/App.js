@@ -10,7 +10,7 @@ function App() {
     <Router >
     
       <Routes>
-        <Route path="/viewCustomEntityKanban/:customEntitySpecId" element={<Dragdropdata />} />
+        <Route path="/viewCustomEntityKanban/:customEntitySpecId/:myEmpId" element={<Dragdropdata />} />
         </Routes>
     </Router>
   );
