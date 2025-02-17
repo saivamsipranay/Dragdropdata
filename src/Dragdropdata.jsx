@@ -93,13 +93,15 @@ const Dragdropdata = () => {
 
   const fetchData = async () => {
     try {
-      // Determine the URL based on the filter
-      const url =
-        filter === "employees"
-          ? // ? `https://testdev.spoors.dev/entity-api/extraService/custom/entity/list/api/?customEntitySpecId=1884`
-            // : `https://react.spoors.dev/entity-api/extraService/custom/entity/list/api/?customEntitySpecId=${customEntitySpecId}`;
-            `https://staging.spoors.in/effortx/extraService/custom/entity/employee/mapping/api/?customEntitySpecId=${customEntitySpecId}&myEmpId=${myEmpId}`
-          : `https://staging.spoors.in/effortx/extraService/custom/entity/list/api/?customEntitySpecId=${customEntitySpecId}&myEmpId=${myEmpId}`;
+      let url = "";
+      if (filter === "employees") {
+        url = `https://staging.spoors.in/effortx/extraService/custom/entity/employee/mapping/api/?customEntitySpecId=${customEntitySpecId}&myEmpId=${myEmpId}`;
+      } else if (filter === "state") {
+        url = `http://localhost:8082/state/api`;
+      } else {
+        // Default case: list
+        url = `https://staging.spoors.in/effortx/extraService/custom/entity/list/api/?customEntitySpecId=${customEntitySpecId}&myEmpId=${myEmpId}`;
+      }
       const response = await axios.get(url);
       const data = response.data;
       // Extract summary data
@@ -109,7 +111,7 @@ const Dragdropdata = () => {
 
       let processedDeals = [];
 
-      if (filter === "employees") {
+      if (filter === "employees" || filter === "state") {
         if (Array.isArray(data.deals)) {
           processedDeals = data.deals.map((deal) => {
             const key = Object.keys(deal)[0];
@@ -210,9 +212,9 @@ const Dragdropdata = () => {
   const onDragEnd = async (result) => {
     const { source, destination } = result;
 
-    if (filter === "employees") {
-      alert("Drag and drop is disabled for employees data.");
-      console.log("Drag and drop is disabled for employees");
+    if (filter === "employees"||filter ==="state") {
+      alert("Drag and drop is disabled for " + filter + " data.");
+      console.log("Drag and drop is disabled for " + filter);
       return;
     }
 
@@ -471,6 +473,7 @@ const Dragdropdata = () => {
                 >
                   <option value="listItems">List items</option>
                   <option value="employees">Employee</option>
+                  <option value="state">State</option>
                 </select>
               </div>
             </div>
