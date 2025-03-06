@@ -20,7 +20,7 @@ import "react-toastify/dist/ReactToastify.css";
 import "./Dragdropdata.css";
 
 const Dragdropdata = () => {
-  const { customEntitySpecId,myEmpId } = useParams();
+  const { customEntitySpecId,myEmpId ,entityId} = useParams();
   const [deals, setDeals] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -34,6 +34,11 @@ const Dragdropdata = () => {
   const scrollContainerRef = useRef(null);
   const [showLeftButton, setShowLeftButton] = useState(false);
   const [showRightButton, setShowRightButton] = useState(false);
+  const [entities, setEntities] = useState([]); // Store available field labels as buttons
+  const [firstFieldLabel, setFirstFieldLabel] = useState("");
+  const [selectedEntityId, setSelectedEntityId] = useState(null);
+  const [isFirstLoad, setIsFirstLoad] = useState(true);
+
 
   const updateScrollButtons = () => {
     if (scrollContainerRef.current) {
@@ -91,64 +96,139 @@ const Dragdropdata = () => {
     }
   };
 
-  const fetchData = async () => {
+  /*const fetchData = async () => {
     try {
+      let entityIdValue =  entityId; 
+  
+      // Step 1: Fetch the initial entityId if it's not already provided
+      if (!entityIdValue) {
+        try {
+          const initialResponse = await axios.get("http://localhost:8084/get/all/list");
+          const entities = initialResponse.data.entities;
+  
+          if (!entities || entities.length === 0) {
+            console.error("No entities found");
+            return;
+          }
+  
+        
+
+          // Extract the first entityId
+          entityIdValue = entities[0].entityId;
+        } catch (error) {
+          console.error("Error fetching entityId:", error);
+          return; 
+        }
+      }
+  
+      // Step 2: Construct the URL based on the filter
       let url = "";
       if (filter === "employees") {
         url = `https://staging.spoors.in/effortx/extraService/custom/entity/employee/mapping/api/?customEntitySpecId=${customEntitySpecId}&myEmpId=${myEmpId}`;
       } else if (filter === "state") {
-        url = `http://localhost:8082/state/api`;
+        url = `https://staging.spoors.in/effortx/extraService/custom/entity/state/api/?customEntitySpecId=${customEntitySpecId}&myEmpId=${myEmpId}`;
       } else {
-        // Default case: list
-        url = `https://staging.spoors.in/effortx/extraService/custom/entity/list/api/?customEntitySpecId=${customEntitySpecId}&myEmpId=${myEmpId}`;
+        url = `https://staging.spoors.in/effortx/extraService/custom/entity/list/api/?customEntitySpecId=${customEntitySpecId}&myEmpId=${myEmpId}&entityId=${entityIdValue}`;
       }
+  
+      console.log("Fetching data from:", url);
+      
+      // Step 3: Fetch the actual data
       const response = await axios.get(url);
       const data = response.data;
+  
       // Extract summary data
+      if (data.summary) {
+        setSummary(data.summary);
+      }
+  
+      let processedDeals = [];
+  
+      if (Array.isArray(data.deals)) {
+        processedDeals = data.deals.map((deal) => {
+          const key = Object.keys(deal)[0];
+          const customEntityItems =
+            deal[key]?.custom_entity_items?.map((item) => ({
+              ...item,
+              formId: item.formId, // Preserve the original formId value
+            })) || [];
+  
+          return {
+            [key]: {
+              ...deal[key],
+              custom_entity_items: customEntityItems,
+            },
+          };
+        });
+      } else {
+        console.error("Unexpected format for deals data");
+      }
+  
+      setDeals(processedDeals);
+      setFilteredDeals(processedDeals);
+    } catch (error) {
+      console.error("There was an error fetching the data!", error);
+    }
+  };
+  */
+  const fetchData = async () => {
+    try {
+      let entityIdValue = entityId;
+
+      if (!entityIdValue) {
+        try {
+          const initialResponse = await axios.get("http://localhost:8084/get/all/list");
+          const entitiesData = initialResponse.data.entities;
+
+          if (!entitiesData || entitiesData.length === 0) {
+            console.error("No entities found");
+            return;
+          }
+
+          entityIdValue = entitiesData[0].entityId;
+          setEntities(entitiesData); 
+          setFirstFieldLabel(entitiesData[0]["field label"]); 
+        } catch (error) {
+          console.error("Error fetching entityId:", error);
+          return;
+        }
+      }
+
+      let url = "";
+      if (filter === "employees") {
+        url = `https://staging.spoors.in/effortx/extraService/custom/entity/employee/mapping/api/?customEntitySpecId=${customEntitySpecId}&myEmpId=${myEmpId}`;
+      } else if (filter === "state") {
+        url = `https://staging.spoors.in/effortx/extraService/custom/entity/state/api/?customEntitySpecId=${customEntitySpecId}&myEmpId=${myEmpId}`;
+      } else {
+        url = `https://staging.spoors.in/effortx/extraService/custom/entity/list/api/?customEntitySpecId=${customEntitySpecId}&myEmpId=${myEmpId}&entityId=${entityIdValue}`;
+      }
+
+      console.log("Fetching data from:", url);
+      const response = await axios.get(url);
+      const data = response.data;
+
       if (data.summary) {
         setSummary(data.summary);
       }
 
       let processedDeals = [];
+      if (Array.isArray(data.deals)) {
+        processedDeals = data.deals.map((deal) => {
+          const key = Object.keys(deal)[0];
+          const customEntityItems = deal[key]?.custom_entity_items?.map((item) => ({
+            ...item,
+            formId: item.formId,
+          })) || [];
 
-      if (filter === "employees" || filter === "state") {
-        if (Array.isArray(data.deals)) {
-          processedDeals = data.deals.map((deal) => {
-            const key = Object.keys(deal)[0];
-            const customEntityItems =
-              deal[key]?.custom_entity_items.map((item) => ({
-                ...item,
-                formId: item.formId, // Preserve the original formId value
-              })) || [];
-            return {
-              [key]: {
-                ...deal[key],
-                custom_entity_items: customEntityItems,
-              },
-            };
-          });
-        } else {
-          console.error("Unexpected format for employees data");
-        }
+          return {
+            [key]: {
+              ...deal[key],
+              custom_entity_items: customEntityItems,
+            },
+          };
+        });
       } else {
-        if (Array.isArray(data.deals)) {
-          processedDeals = data.deals.map((deal) => {
-            const key = Object.keys(deal)[0];
-            const customEntityItems =
-              deal[key]?.custom_entity_items.map((item) => ({
-                ...item,
-                formId: item.formId, // Preserve the original formId value
-              })) || [];
-            return {
-              [key]: {
-                ...deal[key],
-                custom_entity_items: customEntityItems,
-              },
-            };
-          });
-        } else {
-          console.error("Unexpected format for deals data");
-        }
+        console.error("Unexpected format for deals data");
       }
 
       setDeals(processedDeals);
@@ -157,6 +237,7 @@ const Dragdropdata = () => {
       console.error("There was an error fetching the data!", error);
     }
   };
+
 
   useEffect(() => {
     fetchData();
@@ -309,6 +390,7 @@ const Dragdropdata = () => {
       custom_entity_id: updatedItem.custom_entity_id,
       myEmpId: updatedItem.myEmpId,
       id: updatedItem.id,
+      entityId:updatedItem.entityId,
     };
 
     console.log(updatedItem.custom_entity_id + " update");
@@ -464,18 +546,63 @@ const Dragdropdata = () => {
                 Total Amount: ₹{summary.totalAmount}
               </span>
               &nbsp;&nbsp;&nbsp;&nbsp;
-              <div className="dropdown">
-                <select
-                  style={{ fontSize: "13px" }}
-                  className="form-select"
-                  aria-label="Filter options"
-                  onChange={(e) => handleFilterChange(e.target.value)}
-                >
-                  <option value="listItems">List items</option>
-                  <option value="employees">Employee</option>
-                  <option value="state">State</option>
-                </select>
-              </div>
+              <div className="btn-group" style={{ height: "36px" }}>
+  {/* Static buttons */}
+  <button
+    className="btn"
+    style={{
+      backgroundColor: filter === "listItems" ? "#1061cd" : "transparent",
+      color: filter === "listItems" ? "#fff" : "#1061cd",
+      border: "1px solid #1061cd",
+      fontSize: "13px",
+    }}
+    onClick={() => setFilter("listItems")}
+  >
+    List Items
+  </button>
+  <button
+    className="btn"
+    style={{
+      backgroundColor: filter === "employees" ? "#1061cd" : "transparent",
+      color: filter === "employees" ? "#fff" : "#1061cd",
+      border: "1px solid #1061cd",
+      fontSize: "13px",
+    }}
+    onClick={() => setFilter("employees")}
+  >
+    Employee
+  </button>
+  <button
+    className="btn"
+    style={{
+      backgroundColor: filter === "state" ? "#1061cd" : "transparent",
+      color: filter === "state" ? "#fff" : "#1061cd",
+      border: "1px solid #1061cd",
+      fontSize: "13px",
+    }}
+    onClick={() => setFilter("state")}
+  >
+    State
+  </button>
+
+  {entities.length > 0 &&
+    entities.map((entity, index) => (
+      <button
+        key={index}
+        className="btn"
+        style={{
+          backgroundColor: filter === entity["field label"] ? "#1061cd" : "transparent",
+          color: filter === entity["field label"] ? "#fff" : "#1061cd",
+          border: "1px solid #1061cd",
+          fontSize: "13px",
+        }}
+        onClick={() => setFilter(entity["field label"])}
+      >
+        {entity["field label"]}
+      </button>
+    ))}
+</div>
+
             </div>
           </div>
         </nav>
