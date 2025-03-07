@@ -175,9 +175,10 @@ const Dragdropdata = () => {
     try {
       let entityIdValue = entityId;
 
-      if (!entityIdValue) {
+      
         try {
           const initialResponse = await axios.get("http://localhost:8084/get/all/list");
+          console.log("API Response:", initialResponse.data);
           const entitiesData = initialResponse.data.entities;
 
           if (!entitiesData || entitiesData.length === 0) {
@@ -188,10 +189,10 @@ const Dragdropdata = () => {
           entityIdValue = entitiesData[0].entityId;
           setEntities(entitiesData); 
           setFirstFieldLabel(entitiesData[0]["field label"]); 
+          setSelectedEntityId(entityIdValue);
         } catch (error) {
           console.error("Error fetching entityId:", error);
           return;
-        }
       }
 
       let url = "";
@@ -487,10 +488,12 @@ const Dragdropdata = () => {
     }, 0);
   };
 
-  const handleFilterChange = (filterBy) => {
+  const handleFilterChange = (filterBy, entityId) => {
+    console.log("Filter changed to:", filterBy, "Entity ID:", entityId);
     setFilter(filterBy);
+    setSelectedEntityId(entityId);
   };
-
+  
   const getDynamicDate = (deal) => {
     for (const [key, value] of Object.entries(deal)) {
       if (value && !isNaN(Date.parse(value))) {
@@ -586,21 +589,16 @@ const Dragdropdata = () => {
   </button>
 
   {entities.length > 0 &&
-    entities.map((entity, index) => (
-      <button
-        key={index}
-        className="btn"
-        style={{
-          backgroundColor: filter === entity["field label"] ? "#1061cd" : "transparent",
-          color: filter === entity["field label"] ? "#fff" : "#1061cd",
-          border: "1px solid #1061cd",
-          fontSize: "13px",
-        }}
-        onClick={() => setFilter(entity["field label"])}
-      >
-        {entity["field label"]}
-      </button>
-    ))}
+  entities.map((entity, index) => (
+    <button
+      key={index}
+      className={`btn-fieldvalue ${filter === entity["field label"] ? "active" : ""}`}
+      onClick={() => handleFilterChange(entity["field label"], entity.entityId)}
+    >
+      {entity["field label"]}
+    </button>
+  ))}
+
 </div>
 
             </div>
