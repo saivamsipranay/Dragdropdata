@@ -21,6 +21,9 @@ import "./Dragdropdata.css";
 
 const Dragdropdata = () => {
   const { customEntitySpecId,myEmpId ,entityId} = useParams();
+  useEffect(()=>{
+    //alert(entityId)
+  },[entityId])
   const [deals, setDeals] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -38,6 +41,7 @@ const Dragdropdata = () => {
   const [firstFieldLabel, setFirstFieldLabel] = useState("");
   const [selectedEntityId, setSelectedEntityId] = useState(null);
   const [isFirstLoad, setIsFirstLoad] = useState(true);
+  
 
 
   const updateScrollButtons = () => {
@@ -95,7 +99,8 @@ const Dragdropdata = () => {
       setTimeout(updateScrollButtons, 500);
     }
   };
-
+ 
+  
   /*const fetchData = async () => {
     try {
       let entityIdValue =  entityId; 
@@ -177,7 +182,7 @@ const Dragdropdata = () => {
 
       
         try {
-          const initialResponse = await axios.get("http://localhost:8084/get/all/list");
+          const initialResponse = await axios.get(`https://staging.spoors.in/effortx/extraService/custom/entity/all/list/api/?customEntitySpecId=${customEntitySpecId}&myEmpId=${myEmpId}`);
           console.log("API Response:", initialResponse.data);
           const entitiesData = initialResponse.data.entities;
 
@@ -186,8 +191,13 @@ const Dragdropdata = () => {
             return;
           }
 
-          entityIdValue = entitiesData[0].entityId;
+          
+          
           setEntities(entitiesData); 
+          
+          entityIdValue = entitiesData[0].entityId;
+          console.log(entitiesData)
+         // alert("api",entityIdValue)
           setFirstFieldLabel(entitiesData[0]["field label"]); 
           setSelectedEntityId(entityIdValue);
         } catch (error) {
@@ -282,14 +292,24 @@ const Dragdropdata = () => {
   };
   
 
-  const fetchWithTimeout = (url, options, timeout = 5000) => {
-    return Promise.race([
-      fetch(url, options),
-      new Promise((_, reject) =>
-        setTimeout(() => reject(new Error("Request timed out")), timeout)
-      ),
-    ]);
+  const fetchWithTimeout = (url, options = {}, timeout = 5000) => {
+    return new Promise((resolve, reject) => {
+      const timeoutId = setTimeout(() => {
+        reject(new Error("Request timed out"));
+      }, timeout);
+  
+      fetch(url, options)
+        .then((response) => {
+          clearTimeout(timeoutId);
+          resolve(response);
+        })
+        .catch((error) => {
+          clearTimeout(timeoutId);
+          reject(error);
+        });
+    });
   };
+  
 
   const onDragEnd = async (result) => {
     const { source, destination } = result;
@@ -373,10 +393,11 @@ const Dragdropdata = () => {
       if (index === destinationListIndex) {
         return {
           ...deal,
-          [dealKey]: { ...deal[dealKey], custom_entity_items: destinationList },
+          [dealKey]: { ...deal[dealKey], custom_entity_items: destinationList},
         };
       }
       return deal;
+
     });
 
     setDeals(updatedDeals);
@@ -385,22 +406,25 @@ const Dragdropdata = () => {
     const updatedItem = {
       ...movedItem,
       id: destinationDeal[destinationDealKey].id,
+     
+      
     };
 
     const requestBody = {
       custom_entity_id: updatedItem.custom_entity_id,
-      myEmpId: updatedItem.myEmpId,
-      id: updatedItem.id,
+      //myEmpId: updatedItem.myEmpId,
       entityId:updatedItem.entityId,
+      id: updatedItem.id,
+      
     };
 
-    console.log(updatedItem.custom_entity_id + " update");
+    console.log(updatedItem.custom_entity_id + entityId+" update");
     console.log("Request Body:");
     console.log("Sending data:", JSON.stringify(requestBody));
 
     try {
       const response = await fetchWithTimeout(
-        `https://staging.spoors.in/effortx/extraService/get/custom/entity/list/mapping?customEntitySpecId=${customEntitySpecId}`,
+        `https://staging.spoors.in/effortx/extraService/get/custom/entity/list/mapping?customEntitySpecId=${customEntitySpecId}&entityId=${selectedEntityId}`,
         {
           method: "POST",
           headers: {
@@ -410,7 +434,7 @@ const Dragdropdata = () => {
         }
       );
 
-      console.log("Response Status:", response.status);
+      console.log("Response Status:", response.status+entityId);
 
       if (response.ok) {
         const responseData = await response.json();
@@ -426,6 +450,8 @@ const Dragdropdata = () => {
         .slice(0, 2) 
         .map(([key, value]) => `${key}: ${value}`)
         .join(", ");
+        setDeals(updatedDeals); 
+        setFilteredDeals(updatedDeals);
       
         toast.success(
           `Item moved from ${sourceDealKey} to ${destinationDealKey} with details: ${itemDetails}`,
