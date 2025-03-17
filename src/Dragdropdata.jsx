@@ -1,4 +1,3 @@
-import axios from "axios";
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
 // import Box from '@mui/material/Box';
@@ -13,6 +12,8 @@ import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import { faArrowLeft, faArrowRight } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import axios from "axios";
+
 
 import { useParams } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
@@ -39,11 +40,15 @@ const Dragdropdata = () => {
   const [showRightButton, setShowRightButton] = useState(false);
   const [entities, setEntities] = useState([]); // Store available field labels as buttons
   const [firstFieldLabel, setFirstFieldLabel] = useState("");
-  const [selectedEntityId, setSelectedEntityId] = useState(null);
+  const [selectedEntityId, setSelectedEntityId] = useState(-1);
   const [isFirstLoad, setIsFirstLoad] = useState(true);
+  const [entitiesData, setEntitiesData] = useState([]);
+  const [initialEntityId, setInitialEntityId] = useState(null);
+  const [hasEmployeeData, setHasEmployeeData] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   
 
-
+  const booleanCondition = true; 
   const updateScrollButtons = () => {
     if (scrollContainerRef.current) {
       const { scrollLeft, scrollWidth, clientWidth } =
@@ -176,7 +181,7 @@ const Dragdropdata = () => {
     }
   };
   */
-  const fetchData = async () => {
+  /*const fetchData = async () => {
     try {
       let entityIdValue = entityId;
 
@@ -195,7 +200,7 @@ const Dragdropdata = () => {
           
           setEntities(entitiesData); 
           
-          entityIdValue = entitiesData[0].entityId;
+          entityIdValue = selectedEntityId || entitiesData[0].entityId;
           console.log(entitiesData)
          // alert("api",entityIdValue)
           setFirstFieldLabel(entitiesData[0]["field label"]); 
@@ -248,12 +253,134 @@ const Dragdropdata = () => {
       console.error("There was an error fetching the data!", error);
     }
   };
+*/
+// Fetch Data
+
+
+const fetchData = async () => {
+  try {
+    let entityIdValue = entityId;
+    let fetchedEntities = [];
+
+    try {
+      const initialResponse = await axios.get(
+        `https://staging.spoors.in/effortx/extraService/custom/entity/all/list/api/?customEntitySpecId=${customEntitySpecId}&myEmpId=${myEmpId}`
+      );
+      console.log("API Response:", initialResponse.data);
+
+      fetchedEntities = initialResponse.data.entities; // Assign API response
+      setEntities(fetchedEntities); // Store in state
+
+      if (!fetchedEntities || fetchedEntities.length === 0) {
+        console.error("No entities found");
+        return;
+      }
+
+
+      if (selectedEntityId === -1 || selectedEntityId === null) {
+        entityIdValue = fetchedEntities[0]?.entityId || null;
+        setSelectedEntityId(entityIdValue); 
+        console.log("Updated selectedEntityId to:", entityIdValue);
+      } else {
+        entityIdValue = selectedEntityId;
+      }
+
+      setFirstFieldLabel(fetchedEntities[0]["field label"]);
+    } catch (error) {
+      console.error("Error fetching entity list:", error);
+      return;
+    }
+
+    if (entityIdValue === -1 || entityIdValue === null) {
+      console.warn("Invalid entityId, setting to first available entity.");
+      if (fetchedEntities.length > 0) {
+        entityIdValue = fetchedEntities[0]?.entityId || null;
+        setSelectedEntityId(entityIdValue);
+      } else {
+        console.error("No available entities to set entityId.");
+        return;
+      }
+    }
+    let url = "";
+    if (filter === "employees") {
+      url = `https://staging.spoors.in/effortx/extraService/custom/entity/employee/mapping/api/?customEntitySpecId=${customEntitySpecId}&myEmpId=${myEmpId}`;
+    } else if (filter === "state") {
+      url = `https://staging.spoors.in/effortx/extraService/custom/entity/state/api/?customEntitySpecId=${customEntitySpecId}&myEmpId=${myEmpId}`;
+    } else {
+      url = `https://staging.spoors.in/effortx/extraService/custom/entity/list/api/?customEntitySpecId=${customEntitySpecId}&myEmpId=${myEmpId}&entityId=${entityIdValue}`;
+    }
+
+    console.log("Fetching data from:", url);
+    const response = await axios.get(url);
+    const data = response.data;
+
+    if (data.summary) {
+      setSummary(data.summary);
+    }
+  
+    let processedDeals = [];
+    if (Array.isArray(data.deals) && data.deals.length > 0) {
+      processedDeals = data.deals.map((deal) => {
+        const key = Object.keys(deal)[0];
+        const customEntityItems =
+          deal[key]?.custom_entity_items?.map((item) => ({
+            ...item,
+            formId: item.formId,
+          })) || [];
+
+        return {
+          [key]: {
+            ...deal[key],
+            custom_entity_items: customEntityItems,
+          },
+        };
+      });
+    } else {
+      console.warn("No deals found for this entity.");
+    }
+
+    setDeals(processedDeals);
+    setFilteredDeals(processedDeals.length > 0 ? processedDeals : deals); 
+
+    
+    try {
+      console.log("Fetching employee data...");
+      const employeeResponse = await axios.get(
+        `https://staging.spoors.in/effortx/extraService/custom/entity/employee/mapping/api/?customEntitySpecId=${customEntitySpecId}&myEmpId=${myEmpId}`
+      );
+
+      console.log("Employee API Response:", employeeResponse.data);
+
+      if (employeeResponse.data.deals && Array.isArray(employeeResponse.data.deals) && employeeResponse.data.deals.length > 0) {
+        console.log("✅ Employees exist. Showing button.");
+        setHasEmployeeData(true);
+      } else {
+        console.log("❌ No employees found. Hiding button.");
+        setHasEmployeeData(false);
+      }
+    } catch (error) {
+      console.error("Error fetching employee data:", error);
+      setHasEmployeeData(false);
+    }
+
+  } catch (error) {
+    console.error("There was an error fetching the data!", error);
+  }
+};
+
+
+useEffect(() => {
+  if (selectedEntityId === "-1" && entities.length > 0) {
+    console.log("Updating selectedEntityId in useEffect");
+    setSelectedEntityId(entities[0]?.entityId || null);
+  }
+}, [selectedEntityId, entities]);
 
 
   useEffect(() => {
     fetchData();
     setFilteredDeals(deals);
-  }, [filter, customEntitySpecId]);
+  }, [filter, customEntitySpecId,hasEmployeeData,]);
 
   const handleSearch = (event) => {
     const searchTerm = event.target.value.toLowerCase();
@@ -313,75 +440,76 @@ const Dragdropdata = () => {
 
   const onDragEnd = async (result) => {
     const { source, destination } = result;
-
-    if (filter === "employees"||filter ==="state") {
-      alert("Drag and drop is disabled for " + filter + " data.");
-      console.log("Drag and drop is disabled for " + filter);
+  
+    if (filter === "employees" || filter === "state") {
+      alert(`Drag and drop is disabled for ${filter} data.`);
+      console.log(`Drag and drop is disabled for ${filter}`);
       return;
     }
-
+  
     if (!destination) {
       console.log("Dropped outside the list");
       return;
     }
-
-    if (
-      source.droppableId === destination.droppableId &&
-      source.index === destination.index
-    ) {
+  
+    if (source.droppableId === destination.droppableId && source.index === destination.index) {
       console.log("Item dropped in the same position");
       return;
     }
-
+  
     if (!Array.isArray(deals) || deals.length === 0) {
       console.error("Deals array is not defined or empty");
       return;
     }
-
-    const sourceListIndex = parseInt(source.droppableId);
-    const destinationListIndex = parseInt(destination.droppableId);
-
+  
+    const sourceListIndex = Number(source.droppableId);
+    const destinationListIndex = Number(destination.droppableId);
+  
     if (isNaN(sourceListIndex) || isNaN(destinationListIndex)) {
       console.error("Invalid droppable IDs");
       return;
     }
-
+  
     const sourceDeal = deals[sourceListIndex];
     const destinationDeal = deals[destinationListIndex];
-
+  
     if (!sourceDeal || !destinationDeal) {
       console.error("Source or destination deal is not defined");
       return;
     }
-
+  
     const sourceDealKey = Object.keys(sourceDeal)[0];
     const destinationDealKey = Object.keys(destinationDeal)[0];
-
+  
     if (!sourceDealKey || !destinationDealKey) {
       console.error("Deal keys are not defined");
       return;
     }
-
+  
     const sourceList = [...sourceDeal[sourceDealKey].custom_entity_items];
-    const destinationList = [
-      ...destinationDeal[destinationDealKey].custom_entity_items,
-    ];
-
-    if (deals.length === 1) {
-      console.log("Only one list available");
-
-      if (
-        source.droppableId !== destination.droppableId ||
-        source.index !== destination.index
-      ) {
-        console.log("Items cannot be moved within a single list");
-        return;
-      }
+    const destinationList = [...destinationDeal[destinationDealKey].custom_entity_items];
+  
+    if (sourceList.length === 1 && destinationList.length === 1) {
+      console.log("Only one list available, cannot move");
+      return;
     }
-
+  
     const [movedItem] = sourceList.splice(source.index, 1);
+  
+    if (!movedItem || !movedItem.custom_entity_id) {
+      console.error("Invalid moved item:", movedItem);
+      return;
+    }
+  
+    // Ensure the item is not already in the destination list to prevent duplicates
+    const itemExists = destinationList.some((item) => item.custom_entity_id === movedItem.custom_entity_id);
+    if (itemExists) {
+      console.error("Item already exists in destination, preventing duplication.");
+      return;
+    }
+  
     destinationList.splice(destination.index, 0, movedItem);
-
+  
     const updatedDeals = deals.map((deal, index) => {
       const dealKey = Object.keys(deal)[0];
       if (index === sourceListIndex) {
@@ -393,35 +521,29 @@ const Dragdropdata = () => {
       if (index === destinationListIndex) {
         return {
           ...deal,
-          [dealKey]: { ...deal[dealKey], custom_entity_items: destinationList},
+          [dealKey]: { ...deal[dealKey], custom_entity_items: destinationList },
         };
       }
       return deal;
-
     });
-
+  
     setDeals(updatedDeals);
     setFilteredDeals(updatedDeals);
-
+  
     const updatedItem = {
       ...movedItem,
       id: destinationDeal[destinationDealKey].id,
-     
-      
     };
-
+  
     const requestBody = {
-      custom_entity_id: updatedItem.custom_entity_id,
-      //myEmpId: updatedItem.myEmpId,
-      entityId:updatedItem.entityId,
-      id: updatedItem.id,
-      
+      custom_entity_id: updatedItem.custom_entity_id ?? "",
+      entityId: updatedItem.entityId ?? "",
+      id: updatedItem.id ?? "",
     };
-
-    console.log(updatedItem.custom_entity_id + entityId+" update");
-    console.log("Request Body:");
-    console.log("Sending data:", JSON.stringify(requestBody));
-
+  
+    console.log(`Updating item: ${updatedItem.custom_entity_id} -> ${updatedItem.entityId}`);
+    console.log("Request Body:", JSON.stringify(requestBody));
+  
     try {
       const response = await fetchWithTimeout(
         `https://staging.spoors.in/effortx/extraService/get/custom/entity/list/mapping?customEntitySpecId=${customEntitySpecId}&entityId=${selectedEntityId}`,
@@ -433,26 +555,25 @@ const Dragdropdata = () => {
           body: JSON.stringify(requestBody),
         }
       );
-
-      console.log("Response Status:", response.status+entityId);
-
+  
+      console.log("Response Status:", response.status);
+  
       if (response.ok) {
         const responseData = await response.json();
         console.log("Deal updated successfully:", responseData);
+  
         const itemDetails = Object.entries(movedItem)
-        .filter(
-          ([key]) =>
-            key !== "custom_entity_id" &&
-            key !== "formId" &&
-            key !== "Status" &&
-            key !== "amount"
-        ) 
-        .slice(0, 2) 
-        .map(([key, value]) => `${key}: ${value}`)
-        .join(", ");
-        setDeals(updatedDeals); 
-        setFilteredDeals(updatedDeals);
-      
+          .filter(
+            ([key]) =>
+              key !== "custom_entity_id" &&
+              key !== "formId" &&
+              key !== "Status" &&
+              key !== "amount"
+          )
+          .slice(0, 2)
+          .map(([key, value]) => `${key}: ${value}`)
+          .join(", ");
+  
         toast.success(
           `Item moved from ${sourceDealKey} to ${destinationDealKey} with details: ${itemDetails}`,
           {
@@ -464,7 +585,8 @@ const Dragdropdata = () => {
             draggable: true,
             progress: undefined,
           }
-        )
+        );
+  
         fetchData();
       } else {
         const errorText = await response.text();
@@ -479,6 +601,7 @@ const Dragdropdata = () => {
       }
     }
   };
+  
   const handleCardClick = (deal) => {
     console.log("handleCardClick called with:", deal);
 
@@ -577,18 +700,7 @@ const Dragdropdata = () => {
               &nbsp;&nbsp;&nbsp;&nbsp;
               <div className="btn-group" style={{ height: "36px" }}>
   {/* Static buttons */}
-  <button
-    className="btn"
-    style={{
-      backgroundColor: filter === "listItems" ? "#1061cd" : "transparent",
-      color: filter === "listItems" ? "#fff" : "#1061cd",
-      border: "1px solid #1061cd",
-      fontSize: "13px",
-    }}
-    onClick={() => setFilter("listItems")}
-  >
-    List Items
-  </button>
+  {myEmpId && hasEmployeeData && (
   <button
     className="btn"
     style={{
@@ -601,6 +713,10 @@ const Dragdropdata = () => {
   >
     Employee
   </button>
+)}
+
+
+
   <button
     className="btn"
     style={{
@@ -615,15 +731,18 @@ const Dragdropdata = () => {
   </button>
 
   {entities.length > 0 &&
-  entities.map((entity, index) => (
-    <button
-      key={index}
-      className={`btn-fieldvalue ${filter === entity["field label"] ? "active" : ""}`}
-      onClick={() => handleFilterChange(entity["field label"], entity.entityId)}
-    >
-      {entity["field label"]}
-    </button>
-  ))}
+  entities
+    .filter(entity => entity.entityId !== "-1" && entity.entityId !== null && entity.entityId !== undefined)
+    .map((entity) => (
+      <button
+        key={entity.entityId} // Use entityId as the key
+        className={`btn-fieldvalue ${filter === entity["field label"] ? "active" : ""}`}
+        onClick={() => handleFilterChange(entity["field label"], entity.entityId)}
+      >
+        {entity["field label"]}
+      </button>
+    ))
+}
 
 </div>
 
