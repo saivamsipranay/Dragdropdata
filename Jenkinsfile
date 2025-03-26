@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        IMAGE_NAME = "React-App"
+        IMAGE_NAME = "react-app"
         //IMAGE_TAG = "2.0"
         DOCKER_HUB_USER = "saivamsipranay"
     }
