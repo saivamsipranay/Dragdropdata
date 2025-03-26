@@ -17,7 +17,7 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 script {
-                    sh 'npm install'
+                    sh 'npx npm-check-updates -u && npm install'
                 }
             }
         }
