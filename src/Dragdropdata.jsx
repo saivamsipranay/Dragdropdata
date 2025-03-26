@@ -1,4 +1,3 @@
-import axios from "axios";
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
 // import Box from '@mui/material/Box';
@@ -11,8 +10,9 @@ import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
 // import "./App.css";
 // import { colors } from "@mui/material";
 import '@fortawesome/fontawesome-free/css/all.min.css';
-import { faArrowLeft, faArrowRight } from "@fortawesome/free-solid-svg-icons";
+import { faArrowLeft, faArrowRight, faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import axios from "axios";
 
 import { useParams } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
@@ -20,7 +20,7 @@ import "react-toastify/dist/ReactToastify.css";
 import "./Dragdropdata.css";
 
 const Dragdropdata = () => {
-  const { customEntitySpecId,myEmpId } = useParams();
+  const { customEntitySpecId,myEmpId ,entityId} = useParams();
   const [deals, setDeals] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -34,7 +34,20 @@ const Dragdropdata = () => {
   const scrollContainerRef = useRef(null);
   const [showLeftButton, setShowLeftButton] = useState(false);
   const [showRightButton, setShowRightButton] = useState(false);
+  const [entities, setEntities] = useState([]); // Store available field labels as buttons
+  const [firstFieldLabel, setFirstFieldLabel] = useState("");
+  const [selectedEntityId, setSelectedEntityId] = useState(-1);
+  const [isFirstLoad, setIsFirstLoad] = useState(true);
+  const [entitiesData, setEntitiesData] = useState([]);
+  const [initialEntityId, setInitialEntityId] = useState(null);
+  const [hasEmployeeData, setHasEmployeeData] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [hasStateData, setHasStateData] = useState(false);
+  const [loading, setLoading] = useState(false);
 
+  
+
+  const booleanCondition = true; 
   const updateScrollButtons = () => {
     if (scrollContainerRef.current) {
       const { scrollLeft, scrollWidth, clientWidth } =
@@ -90,77 +103,163 @@ const Dragdropdata = () => {
       setTimeout(updateScrollButtons, 500);
     }
   };
+ 
+const fetchData = async () => {
+  setLoading(true);
+  try {
+    let entityIdValue = entityId;
+    let fetchedEntities = [];
 
-  const fetchData = async () => {
     try {
-      // Determine the URL based on the filter
-      const url =
-        filter === "employees"
-          ? // ? `https://testdev.spoors.dev/entity-api/extraService/custom/entity/list/api/?customEntitySpecId=1884`
-            // : `https://react.spoors.dev/entity-api/extraService/custom/entity/list/api/?customEntitySpecId=${customEntitySpecId}`;
-            `https://staging.spoors.in/effortx/extraService/custom/entity/employee/mapping/api/?customEntitySpecId=${customEntitySpecId}&myEmpId=${myEmpId}`
-          : `https://staging.spoors.in/effortx/extraService/custom/entity/list/api/?customEntitySpecId=${customEntitySpecId}&myEmpId=${myEmpId}`;
-      const response = await axios.get(url);
-      const data = response.data;
-      // Extract summary data
-      if (data.summary) {
-        setSummary(data.summary);
+      const initialResponse = await axios.get(
+        `https://secure.spoors.in/effortx/extraService/custom/entity/all/list/api/?customEntitySpecId=${customEntitySpecId}&myEmpId=${myEmpId}`
+      );
+      console.log("API Response:", initialResponse.data);
+
+      fetchedEntities = initialResponse.data.entities; // Assign API response
+      setEntities(fetchedEntities); // Store in state
+
+      if (!fetchedEntities || fetchedEntities.length === 0) {
+        console.error("No entities found");
+        return;
       }
 
-      let processedDeals = [];
 
-      if (filter === "employees") {
-        if (Array.isArray(data.deals)) {
-          processedDeals = data.deals.map((deal) => {
-            const key = Object.keys(deal)[0];
-            const customEntityItems =
-              deal[key]?.custom_entity_items.map((item) => ({
-                ...item,
-                formId: item.formId, // Preserve the original formId value
-              })) || [];
-            return {
-              [key]: {
-                ...deal[key],
-                custom_entity_items: customEntityItems,
-              },
-            };
-          });
-        } else {
-          console.error("Unexpected format for employees data");
-        }
+      if (selectedEntityId === -1 || selectedEntityId === null) {
+        entityIdValue = fetchedEntities[0]?.entityId || null;
+        const initialFilter = fetchedEntities[0]?.["field label"];
+      if (initialFilter) {
+        setFilter(initialFilter);
+        console.log("Initial filter set to:", initialFilter);
+      }
+        setSelectedEntityId(entityIdValue); 
+        console.log("Updated selectedEntityId to:", entityIdValue);
       } else {
-        if (Array.isArray(data.deals)) {
-          processedDeals = data.deals.map((deal) => {
-            const key = Object.keys(deal)[0];
-            const customEntityItems =
-              deal[key]?.custom_entity_items.map((item) => ({
-                ...item,
-                formId: item.formId, // Preserve the original formId value
-              })) || [];
-            return {
-              [key]: {
-                ...deal[key],
-                custom_entity_items: customEntityItems,
-              },
-            };
-          });
-        } else {
-          console.error("Unexpected format for deals data");
-        }
+        entityIdValue = selectedEntityId;
       }
 
-      setDeals(processedDeals);
-      setFilteredDeals(processedDeals);
+      setFirstFieldLabel(fetchedEntities[0]["field label"]);
     } catch (error) {
-      console.error("There was an error fetching the data!", error);
+      console.error("Error fetching entity list:", error);
+      return;
     }
-  };
+
+    if (entityIdValue === -1 || entityIdValue === null) {
+      console.warn("Invalid entityId, setting to first available entity.");
+      if (fetchedEntities.length > 0) {
+        entityIdValue = fetchedEntities[0]?.entityId || null;
+        setSelectedEntityId(entityIdValue);
+      } else {
+        console.error("No available entities to set entityId.");
+        return;
+      }
+    }
+    let url = "";
+    if (filter === "employees") {
+      url = `https://secure.spoors.in/effortx/extraService/custom/entity/employee/mapping/api/?customEntitySpecId=${customEntitySpecId}&myEmpId=${myEmpId}`;
+    } else if (filter === "state") {
+      url = `https://secure.spoors.in/effortx/extraService/custom/entity/state/api/?customEntitySpecId=${customEntitySpecId}&myEmpId=${myEmpId}`;
+    } else {
+      url = `https://secure.spoors.in/effortx/extraService/custom/entity/list/api/?customEntitySpecId=${customEntitySpecId}&myEmpId=${myEmpId}&entityId=${entityIdValue}`;
+    }
+
+    console.log("Fetching data from:", url);
+    const response = await axios.get(url);
+    const data = response.data;
+
+    if (data.summary) {
+      setSummary(data.summary);
+    }
+
+    
+  
+    let processedDeals = [];
+    if (Array.isArray(data.deals) && data.deals.length > 0) {
+      processedDeals = data.deals.map((deal) => {
+        const key = Object.keys(deal)[0];
+        const customEntityItems =
+          deal[key]?.custom_entity_items?.map((item) => ({
+            ...item,
+            formId: item.formId,
+          })) || [];
+
+        return {
+          [key]: {
+            ...deal[key],
+            custom_entity_items: customEntityItems,
+          },
+        };
+      });
+    } else {
+      console.warn("No deals found for this entity.");
+    }
+
+    setDeals(processedDeals);
+    setFilteredDeals(processedDeals.length > 0 ? processedDeals : deals); 
+
+    
+    try {
+      console.log("Fetching employee data...");
+      const employeeResponse = await axios.get(
+        `https://secure.spoors.in/effortx/extraService/custom/entity/employee/mapping/api/?customEntitySpecId=${customEntitySpecId}&myEmpId=${myEmpId}`
+      );
+
+      console.log("Employee API Response:", employeeResponse.data);
+
+      if (employeeResponse.data.deals && Array.isArray(employeeResponse.data.deals) && employeeResponse.data.deals.length > 0) {
+        console.log("✅ Employees exist. Showing button.");
+        setHasEmployeeData(true);
+      } else {
+        console.log("❌ No employees found. Hiding button.");
+        setHasEmployeeData(false);
+      }
+    } catch (error) {
+      console.error("Error fetching employee data:", error);
+      setHasEmployeeData(false);
+    }
+
+  } catch (error) {
+    console.error("There was an error fetching the data!", error);
+  }
+
+  try {
+    console.log("Fetching state data...");
+    const stateResponse = await axios.get(
+      `https://secure.spoors.in/effortx/extraService/custom/entity/state/api/?customEntitySpecId=${customEntitySpecId}&myEmpId=${myEmpId}`
+    );
+  
+    console.log("State API Response:", stateResponse.data);
+  
+    if (stateResponse.data.deals && Array.isArray(stateResponse.data.deals) && stateResponse.data.deals.length > 0) {
+      console.log("✅ State data exists. Showing button.");
+      setHasStateData(true);
+    } else {
+      console.log("❌ No state data found. Hiding button.");
+      setHasStateData(false);
+    }
+  } catch (error) {
+    console.error("Error fetching state data:", error);
+    setHasStateData(false);
+  }
+  setLoading(false);
+};
+
+
+useEffect(() => {
+  if (selectedEntityId === "-1" && entities.length > 0) {
+    console.log("Updating selectedEntityId in useEffect");
+    setSelectedEntityId(entities[0]?.entityId || null);
+  }
+}, [selectedEntityId, entities]);
+
 
   useEffect(() => {
     fetchData();
     setFilteredDeals(deals);
-  }, [filter, customEntitySpecId]);
+  }, [filter, customEntitySpecId,hasEmployeeData,]);
 
+
+  
   const handleSearch = (event) => {
     const searchTerm = event.target.value.toLowerCase();
     setSearchTerm(searchTerm);
@@ -170,7 +269,7 @@ const Dragdropdata = () => {
         const listItemKey = Object.keys(listItem)[0];
         const dealCategory = listItem[listItemKey];
   
-        // Filter the items based on the search term across all fields
+        
         const filteredItems = dealCategory.custom_entity_items.filter((deal) => {
           return Object.values(deal).some((value) => {
             return (
@@ -181,7 +280,7 @@ const Dragdropdata = () => {
           });
         });
   
-        // Return the category with filtered items if any are found
+      
         return filteredItems.length > 0
           ? {
               [listItemKey]: {
@@ -198,86 +297,97 @@ const Dragdropdata = () => {
   };
   
 
-  const fetchWithTimeout = (url, options, timeout = 5000) => {
-    return Promise.race([
-      fetch(url, options),
-      new Promise((_, reject) =>
-        setTimeout(() => reject(new Error("Request timed out")), timeout)
-      ),
-    ]);
+  const fetchWithTimeout = (url, options = {}, timeout = 15000) => {
+    return new Promise((resolve, reject) => {
+      const timeoutId = setTimeout(() => {
+        reject(new Error("Request timed out"));
+      }, timeout);
+  
+      fetch(url, options)
+        .then((response) => {
+          clearTimeout(timeoutId);
+          resolve(response);
+        })
+        .catch((error) => {
+          clearTimeout(timeoutId);
+          reject(error);
+        });
+    });
   };
+  
 
   const onDragEnd = async (result) => {
     const { source, destination } = result;
-
-    if (filter === "employees") {
-      alert("Drag and drop is disabled for employees data.");
-      console.log("Drag and drop is disabled for employees");
+  
+    if (filter === "employees" || filter === "state") {
+      alert(`Drag and drop is disabled for ${filter} data.`);
+      console.log(`Drag and drop is disabled for ${filter}`);
       return;
     }
-
+  
     if (!destination) {
       console.log("Dropped outside the list");
       return;
     }
-
-    if (
-      source.droppableId === destination.droppableId &&
-      source.index === destination.index
-    ) {
+  
+    if (source.droppableId === destination.droppableId && source.index === destination.index) {
       console.log("Item dropped in the same position");
       return;
     }
-
+  
     if (!Array.isArray(deals) || deals.length === 0) {
       console.error("Deals array is not defined or empty");
       return;
     }
-
-    const sourceListIndex = parseInt(source.droppableId);
-    const destinationListIndex = parseInt(destination.droppableId);
-
+  
+    const sourceListIndex = Number(source.droppableId);
+    const destinationListIndex = Number(destination.droppableId);
+  
     if (isNaN(sourceListIndex) || isNaN(destinationListIndex)) {
       console.error("Invalid droppable IDs");
       return;
     }
-
+  
     const sourceDeal = deals[sourceListIndex];
     const destinationDeal = deals[destinationListIndex];
-
+  
     if (!sourceDeal || !destinationDeal) {
       console.error("Source or destination deal is not defined");
       return;
     }
-
+  
     const sourceDealKey = Object.keys(sourceDeal)[0];
     const destinationDealKey = Object.keys(destinationDeal)[0];
-
+  
     if (!sourceDealKey || !destinationDealKey) {
       console.error("Deal keys are not defined");
       return;
     }
-
+  
     const sourceList = [...sourceDeal[sourceDealKey].custom_entity_items];
-    const destinationList = [
-      ...destinationDeal[destinationDealKey].custom_entity_items,
-    ];
-
-    if (deals.length === 1) {
-      console.log("Only one list available");
-
-      if (
-        source.droppableId !== destination.droppableId ||
-        source.index !== destination.index
-      ) {
-        console.log("Items cannot be moved within a single list");
-        return;
-      }
+    const destinationList = [...destinationDeal[destinationDealKey].custom_entity_items];
+  
+    if (sourceList.length === 1 && destinationList.length === 1) {
+      console.log("Only one list available, cannot move");
+      return;
     }
-
+  
     const [movedItem] = sourceList.splice(source.index, 1);
+  
+    if (!movedItem || !movedItem.custom_entity_id) {
+      console.error("Invalid moved item:", movedItem);
+      return;
+    }
+  
+    // Ensure the item is not already in the destination list to prevent duplicates
+    const itemExists = destinationList.some((item) => item.custom_entity_id === movedItem.custom_entity_id);
+    if (itemExists) {
+      console.error("Item already exists in destination, preventing duplication.");
+      return;
+    }
+  
     destinationList.splice(destination.index, 0, movedItem);
-
+  
     const updatedDeals = deals.map((deal, index) => {
       const dealKey = Object.keys(deal)[0];
       if (index === sourceListIndex) {
@@ -294,28 +404,27 @@ const Dragdropdata = () => {
       }
       return deal;
     });
-
+  
     setDeals(updatedDeals);
     setFilteredDeals(updatedDeals);
-
+  
     const updatedItem = {
       ...movedItem,
       id: destinationDeal[destinationDealKey].id,
     };
-
+  
     const requestBody = {
-      custom_entity_id: updatedItem.custom_entity_id,
-      myEmpId: updatedItem.myEmpId,
-      id: updatedItem.id,
+      custom_entity_id: updatedItem.custom_entity_id ?? "",
+      entityId: updatedItem.entityId ?? "",
+      id: updatedItem.id ?? "",
     };
-
-    console.log(updatedItem.custom_entity_id + " update");
-    console.log("Request Body:");
-    console.log("Sending data:", JSON.stringify(requestBody));
-
+  
+    console.log(`Updating item: ${updatedItem.custom_entity_id} -> ${updatedItem.entityId}`);
+    console.log("Request Body:", JSON.stringify(requestBody));
+  
     try {
       const response = await fetchWithTimeout(
-        `https://staging.spoors.in/effortx/extraService/get/custom/entity/list/mapping?customEntitySpecId=${customEntitySpecId}`,
+        `https://secure.spoors.in/effortx/extraService/get/custom/entity/list/mapping?customEntitySpecId=${customEntitySpecId}&entityId=${selectedEntityId}`,
         {
           method: "POST",
           headers: {
@@ -324,24 +433,25 @@ const Dragdropdata = () => {
           body: JSON.stringify(requestBody),
         }
       );
-
+  
       console.log("Response Status:", response.status);
-
+  
       if (response.ok) {
         const responseData = await response.json();
         console.log("Deal updated successfully:", responseData);
+  
         const itemDetails = Object.entries(movedItem)
-        .filter(
-          ([key]) =>
-            key !== "custom_entity_id" &&
-            key !== "formId" &&
-            key !== "Status" &&
-            key !== "amount"
-        ) 
-        .slice(0, 2) 
-        .map(([key, value]) => `${key}: ${value}`)
-        .join(", ");
-      
+          .filter(
+            ([key]) =>
+              key !== "custom_entity_id" &&
+              key !== "formId" &&
+              key !== "Status" &&
+              key !== "amount"
+          )
+          .slice(0, 2)
+          .map(([key, value]) => `${key}: ${value}`)
+          .join(", ");
+  
         toast.success(
           `Item moved from ${sourceDealKey} to ${destinationDealKey} with details: ${itemDetails}`,
           {
@@ -353,7 +463,8 @@ const Dragdropdata = () => {
             draggable: true,
             progress: undefined,
           }
-        )
+        );
+  
         fetchData();
       } else {
         const errorText = await response.text();
@@ -368,6 +479,7 @@ const Dragdropdata = () => {
       }
     }
   };
+  
   const handleCardClick = (deal) => {
     console.log("handleCardClick called with:", deal);
 
@@ -402,11 +514,22 @@ const Dragdropdata = () => {
       return total + amount;
     }, 0);
   };
-
-  const handleFilterChange = (filterBy) => {
+  useEffect(() => {
+    if (entities.length > 0 && !filter) {
+      const initialEntity = entities.find(e => e.entityId === selectedEntityId) || entities[0];
+      if (initialEntity) {
+        setFilter(initialEntity["field label"]);
+        setSelectedEntityId(initialEntity.entityId);
+        console.log("Initial filter setup:", initialEntity["field label"]);
+      }
+    }
+  }, [entities, selectedEntityId]); 
+  const handleFilterChange = (filterBy, entityId) => {
+    console.log("Filter changed to:", filterBy, "Entity ID:", entityId);
     setFilter(filterBy);
+    setSelectedEntityId(entityId);
   };
-
+  
   const getDynamicDate = (deal) => {
     for (const [key, value] of Object.entries(deal)) {
       if (value && !isNaN(Date.parse(value))) {
@@ -425,8 +548,26 @@ const Dragdropdata = () => {
     }
     return " "; 
   };
+
+  useEffect(() => {
+   setTimeout(() => {
+      setLoading(false);
+    }, 2000); 
+  }, []);
   return (
     <div className="container-fluid mt-4-top" style={{ fontSize: '13px' }}>
+   {loading && (
+  <div className="loading-overlay">
+    <div className="text-center">
+      <FontAwesomeIcon 
+        icon={faSpinner} 
+        spin 
+        style={{ fontSize: '2rem', color: '#1061cd' }} 
+      />
+      <p className="mt-2">Loading data...</p>
+    </div>
+  </div>
+)}
       <ToastContainer />
       <div className="height-fixed-top">
         <nav
@@ -462,17 +603,60 @@ const Dragdropdata = () => {
                 Total Amount: ₹{summary.totalAmount}
               </span>
               &nbsp;&nbsp;&nbsp;&nbsp;
-              <div className="dropdown">
-                <select
-                  style={{ fontSize: "13px" }}
-                  className="form-select"
-                  aria-label="Filter options"
-                  onChange={(e) => handleFilterChange(e.target.value)}
-                >
-                  <option value="listItems">List items</option>
-                  <option value="employees">Employee</option>
-                </select>
-              </div>
+              <div className="btn-group" style={{ height: "36px" }}>
+  {/* Static buttons */}
+  {myEmpId && hasEmployeeData && (
+  <button
+    className="btn"
+    style={{
+      backgroundColor: filter === "employees" ? "#1061cd" : "transparent",
+      color: filter === "employees" ? "#fff" : "#1061cd",
+      border: "1px solid #1061cd",
+      fontSize: "13px",
+    }}
+    onClick={() => setFilter("employees")}
+  >
+    Employee
+  </button>
+)}
+  {hasStateData && (
+  <button
+    className="btn"
+    style={{
+      backgroundColor: filter === "state" ? "#1061cd" : "transparent",
+      color: filter === "state" ? "#fff" : "#1061cd",
+      border: "1px solid #1061cd",
+      fontSize: "13px",
+    }}
+    onClick={() => setFilter("state")}
+  >
+    State
+  </button>
+)}
+{entities.length > 0 &&
+  entities
+    .filter(entity => entity.entityId !== "-1" && entity.entityId !== null)
+    .map((entity) => {
+      const isActive = filter === entity["field label"];
+      return (
+        <button
+          key={entity.entityId}
+          className={`btn-fieldvalue ${isActive ? "active" : ""}`}
+          style={{
+            backgroundColor: isActive ? "#1061cd" : "transparent",
+            color: isActive ? "#fff" : "#1061cd",
+            border: "1px solid #1061cd",
+            fontSize: "13px",
+          }}
+          onClick={() => handleFilterChange(entity["field label"], entity.entityId)}
+        >
+          {entity["field label"]}
+        </button>
+      );
+    })
+}
+</div>
+
             </div>
           </div>
         </nav>
