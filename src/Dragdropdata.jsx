@@ -112,7 +112,7 @@ const fetchData = async () => {
 
     try {
       const initialResponse = await axios.get(
-        `https://secure.spoors.in/effortx/extraService/custom/entity/all/list/api/?customEntitySpecId=${customEntitySpecId}&myEmpId=${myEmpId}`
+        `https://staging.spoors.in/effortx/extraService/custom/entity/all/list/api/?customEntitySpecId=${customEntitySpecId}&myEmpId=${myEmpId}`
       );
       console.log("API Response:", initialResponse.data);
 
@@ -156,11 +156,11 @@ const fetchData = async () => {
     }
     let url = "";
     if (filter === "employees") {
-      url = `https://secure.spoors.in/effortx/extraService/custom/entity/employee/mapping/api/?customEntitySpecId=${customEntitySpecId}&myEmpId=${myEmpId}`;
+      url = `https://staging.spoors.in/effortx/extraService/custom/entity/employee/mapping/api/?customEntitySpecId=${customEntitySpecId}&myEmpId=${myEmpId}`;
     } else if (filter === "state") {
-      url = `https://secure.spoors.in/effortx/extraService/custom/entity/state/api/?customEntitySpecId=${customEntitySpecId}&myEmpId=${myEmpId}`;
+      url = `https://staging.spoors.in/effortx/extraService/custom/entity/state/api/?customEntitySpecId=${customEntitySpecId}&myEmpId=${myEmpId}`;
     } else {
-      url = `https://secure.spoors.in/effortx/extraService/custom/entity/list/api/?customEntitySpecId=${customEntitySpecId}&myEmpId=${myEmpId}&entityId=${entityIdValue}`;
+      url = `https://staging.spoors.in/effortx/extraService/custom/entity/list/api/?customEntitySpecId=${customEntitySpecId}&myEmpId=${myEmpId}&entityId=${entityIdValue}`;
     }
 
     console.log("Fetching data from:", url);
@@ -201,7 +201,7 @@ const fetchData = async () => {
     try {
       console.log("Fetching employee data...");
       const employeeResponse = await axios.get(
-        `https://secure.spoors.in/effortx/extraService/custom/entity/employee/mapping/api/?customEntitySpecId=${customEntitySpecId}&myEmpId=${myEmpId}`
+        `https://staging.spoors.in/effortx/extraService/custom/entity/employee/mapping/api/?customEntitySpecId=${customEntitySpecId}&myEmpId=${myEmpId}`
       );
 
       console.log("Employee API Response:", employeeResponse.data);
@@ -225,7 +225,7 @@ const fetchData = async () => {
   try {
     console.log("Fetching state data...");
     const stateResponse = await axios.get(
-      `https://secure.spoors.in/effortx/extraService/custom/entity/state/api/?customEntitySpecId=${customEntitySpecId}&myEmpId=${myEmpId}`
+      `https://staging.spoors.in/effortx/extraService/custom/entity/state/api/?customEntitySpecId=${customEntitySpecId}&myEmpId=${myEmpId}`
     );
   
     console.log("State API Response:", stateResponse.data);
@@ -424,7 +424,7 @@ useEffect(() => {
   
     try {
       const response = await fetchWithTimeout(
-        `https://secure.spoors.in/effortx/extraService/get/custom/entity/list/mapping?customEntitySpecId=${customEntitySpecId}&entityId=${selectedEntityId}`,
+        `https://staging.spoors.in/effortx/extraService/get/custom/entity/list/mapping?customEntitySpecId=${customEntitySpecId}&entityId=${selectedEntityId}`,
         {
           method: "POST",
           headers: {
