@@ -10,7 +10,7 @@ pipeline {
     stages {
         stage('Checkout Code') {
             steps {
-                sh 'git clone https://github.com/sivakumar963spoors/Dragdropdata.git'
+                sh 'echo "git checkout"'
             }
         }
 
