@@ -63,7 +63,17 @@ pipeline {
                 }
             }
         }
+        stage('Sleep') {
+            steps {
+                sh 'sleep 30'
+            }
+        }
     }
+    post {
+    success {
+        archiveArtifacts artifacts: 'build/**', fingerprint: true
+    }
+}
 }
 
 
