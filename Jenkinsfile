@@ -49,6 +49,20 @@ pipeline {
                 }    
             }
         }
+        stage('Deploy to GKE') {
+            steps {
+                script {
+                    // Authenticate to GKE
+                    sh 'gcloud container clusters get-credentials autopilot-cluster-1 --region us-central1 --project tidal-repeater-454806-d1'
+
+                    // Apply Kubernetes Deployment
+                    sh """
+                    kubectl set image deployment/react-app-deployment \
+                    react-app:=saivamsipranay/react-app:{BUILD_ID}
+                    """
+                }
+            }
+        }
     }
 }
 
