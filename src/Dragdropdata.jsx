@@ -564,7 +564,7 @@ useEffect(() => {
         spin 
         style={{ fontSize: '2rem', color: '#1061cd' }} 
       />
-      <p className="mt-2">Loading data...</p>
+      <p className="mt-2">Loading...</p>
     </div>
   </div>
 )}
