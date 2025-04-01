@@ -4,7 +4,7 @@ pipeline {
     environment {
         IMAGE_NAME = "react-app"
         //IMAGE_TAG = "2.0"
-        DOCKER_HUB_USER = "saivamsipranay"
+        //DOCKER_HUB_USER = "saivamsipranay"
     }
 
     stages {
