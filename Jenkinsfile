@@ -57,6 +57,7 @@ pipeline {
 
                     // Apply Kubernetes Deployment
                     sh """
+                    sed 's/tag/${BUILD_ID}/' react-app-deployment.yaml
                     kubectl set image deployment/react-app-deployment \
                     react-app=saivamsipranay/react-app:${BUILD_ID}
                     """
