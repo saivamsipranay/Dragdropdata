@@ -24,7 +24,7 @@ COPY . .
 FROM nginx:stable-perl
 
 # Set working directory
-/var/lib/react/react-app/build
+WORKDIR /var/lib/react/react-app/build
 
 # Copy only necessary files from the builder stage
 COPY --from=builder /app ./
