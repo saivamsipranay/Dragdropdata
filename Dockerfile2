@@ -23,7 +23,7 @@ FROM nginx:stable-perl
 RUN mkdir -p /var/lib/react/react-app/build
 
 # Copy only necessary files from the builder stage
-COPY --from=builder ./app /var/lib/react/react-app/build/
+COPY --from=builder ./app/build /var/lib/react/react-app/build/
 
 RUN sed -i 's|index  index.html index.htm;|try_files $uri $uri/ /index.html;|g' /etc/nginx/conf.d/default.conf
 RUN sed -i 's|root   /usr/share/nginx/html;|root   /var/lib/react/react-app/build;|g' /etc/nginx/conf.d/default.conf
