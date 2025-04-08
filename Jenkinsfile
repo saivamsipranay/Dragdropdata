@@ -57,7 +57,7 @@ pipeline {
 
                     // Apply Kubernetes Deployment
                     sh """
-                    sed 's/tag/${BUILD_ID}/' react-app-deployment.yaml
+                    sed 's/tag/${BUILD_ID}/' /var/lib/jenkins/workspace/react-app/react-app-deployment.yaml
                     kubectl apply -f react-app-deployment.yaml
                     """
                 }
