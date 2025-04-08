@@ -13,7 +13,7 @@ spec:
     spec:
       containers:
       - name: react-app
-        image: saivamsipranay/react-app:17
+        image: saivamsipranay/react-app:tag
         resources:
           limits:
             memory: "128Mi"
