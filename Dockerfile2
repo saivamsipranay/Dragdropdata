@@ -32,4 +32,4 @@ RUN sed -i 's|root   /usr/share/nginx/html;|root   /var/lib/react/react-app/buil
 EXPOSE 80
 
 # Command to run your app
-CMD ["npm", "start"]
+CMD ["nginx", "-g", "daemon off;"]
